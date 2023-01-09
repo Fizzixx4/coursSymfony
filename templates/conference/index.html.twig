@@ -47,6 +47,10 @@
                 <li class="list-group-item list-group-item-action">
                     {{ conference.city }} - ({{ conference.year }}) - {{ conference.name }}
                 </li>
+                <div>
+                    <a class="btn btn-warning" href="{{ path('updateConference', { id: conference.id }) }}">Modifier</a>
+                    <a class="btn btn-danger" href="{{ path('removeConference', { id: conference.id }) }}">Supprimer</a> 
+                </div>
             </a>
         {% endfor %}
     </ul>
@@ -56,5 +60,6 @@
     {% if next < conferences| length %}
     <a class="btn btn-primary" href="{{ path('app_conference', {offset: next}) }}">Suivant</a>
     {% endif %}
+    <a class="btn btn-secondary" href="{{ path('newConference') }}">Nouvelle conférence</a>
 </div>
 {% endblock %}

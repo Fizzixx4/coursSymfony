@@ -5,9 +5,9 @@ namespace App\Controller;
 use App\Entity\Comment;
 use App\Entity\Conference;
 use App\Form\CommentFormType;
+use App\Form\ConferenceFormType;
 use App\Repository\CommentRepository;
 use App\Repository\ConferenceRepository;
-use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -84,6 +84,56 @@ class ConferenceController extends AbstractController
         }
         return $this->render('conference/new_comment.html.twig', [
             'conference' => $conference,
+            'form_comment' => $form->createView(),
+            'message' => $message,
+        ]);
+    }
+
+    #[Route('/newConference', name: 'newConference')]
+    public function newConference(ConferenceRepository $conferenceRepo, Request $request): Response
+    {   
+        $conference = new Conference();
+        $form = $this->createForm(ConferenceFormType::class, $conference);
+        $form->handleRequest($request);
+        $message = '';
+        if($form->isSubmitted()){
+            if($form->isValid()){
+                $conferenceRepo->save($conference, true);
+                return $this->redirectToRoute('app_conference');
+            }
+            else{
+                $message = 'La saisi n\'est pas valide';
+            }
+        }
+        return $this->render('conference/new_conference.html.twig', [
+            'form_comment' => $form->createView(),
+            'message' => $message,
+        ]);
+    }
+
+    #[Route('/removeConference/{id}', name: 'removeConference')]
+    public function removeConference(Conference $conference, ConferenceRepository $conferenceRepo, Request $request): Response
+    {   
+        $conferenceRepo->remove($conference, true); 
+        return $this->redirectToRoute('app_conference');
+    }
+
+    #[Route('/updateConference/{id}', name: 'updateConference')]
+    public function updateConference(Conference $conference, ConferenceRepository $conferenceRepo, Request $request): Response
+    {   
+        $form = $this->createForm(ConferenceFormType::class, $conference);
+        $form->handleRequest($request);
+        $message = '';
+        if($form->isSubmitted()){
+            if($form->isValid()){
+                $conferenceRepo->save($conference, true);
+                return $this->redirectToRoute('app_conference');
+            }
+            else{
+                $message = 'La saisi n\'est pas valide';
+            }
+        }
+        return $this->render('conference/new_conference.html.twig', [
             'form_comment' => $form->createView(),
             'message' => $message,
         ]);

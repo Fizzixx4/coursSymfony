@@ -9,13 +9,12 @@
 </style>
 
 <div class="example-wrapper">
-    <h1>Conférence {{ conference.name }}</h1>
-    <h2>Ville : {{ conference.city }}</h2>
+    <h1>Créez une conférence</h1>
     {% if (message) %}
     <div >{{ message }}</div>
     {% endif %}
     {# Méthode form de twig #}
     {{ form(form_comment) }}
 </div>
-<a class="btn btn-success" href="{{ path('ficheConference',{ id: conference.id }) }}">Retour</a>
+<a class="btn btn-success" href="{{ path('app_conference') }}">Retour</a>
 {% endblock %}
