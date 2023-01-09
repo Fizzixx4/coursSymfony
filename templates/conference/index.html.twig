@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Livre d'or des conférences{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div class="example-wrapper">
+    <h1>Faites-nous un retour !</h1>
+
+    <h2>Critères des recherches</h2>
+    <form>
+        <div class="row form-group">
+        <label for="year_search" class="col-6 col-form-label text-end">Année</label>
+            <div class="col-6">
+                <select class="form-control" id="year_search" name="year_search">
+                    <option {{ year_search == '' ? 'selected': '' }} value="">(Toutes les années)</option>
+                    {% for year in years %}
+                        <option {{ year_search == year ? 'selected' : '' }} >{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row form-group">
+        <label for="city_search" class="col-6 col-form-label text-end">Ville</label>
+            <div class="col-6">
+                <select class="form-control" id="city_search" name="city_search">
+                    <option {{ city_search == '' ? 'selected': '' }} value="">(Toutes les villes)</option>
+                    {% for city in cities %}
+                        <option {{ city_search == city ? 'selected' : '' }}>{{ city }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <button type="submit" class="btn btn-primary">Rechercher</button>
+        </div>
+    </form>
+
+    Il y a {{ conferences| length }} Conférence{{ conferences| length ? 's' : '' }}
+    <ul class="list-group">
+        {% for conference in conferences %}
+            <a class="text-decoration-none" href="{{ path('ficheConference', { id: conference.id }) }}">
+                <li class="list-group-item list-group-item-action">
+                    {{ conference.city }} - ({{ conference.year }}) - {{ conference.name }}
+                </li>
+            </a>
+        {% endfor %}
+    </ul>
+    {% if previous >=0 %}
+    <a class="btn btn-primary" href="{{ path('app_conference', {offset: previous}) }}">Précédent</a>
+    {% endif %}
+    {% if next < conferences| length %}
+    <a class="btn btn-primary" href="{{ path('app_conference', {offset: next}) }}">Suivant</a>
+    {% endif %}
+</div>
+{% endblock %}

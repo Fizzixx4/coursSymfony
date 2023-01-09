@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Livre d'or des conférences{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div class="example-wrapper">
+    <h1>Conférence {{ conference.name }}</h1>
+    <h2>Ville : {{ conference.city }}</h2>
+    Il y a {{ comments| length }} Commentaire{{ comments| length ? 's' : '' }}:
+    <ul class="list-group">
+        {% for comment in comments %}
+            <li class="list-group-item list-group-item-action">
+                Commentaire de {{ comment.author }} fait le {{ comment.createdAt|date('d/m/Y h:i:s') }}<br>
+            </li>
+        {% endfor %}
+    </ul>
+    {% if previous >=0 %}
+    <a class="btn btn-primary" href="{{ path('ficheConference', {id: conference.id, offset: previous}) }}">Précédent</a>
+    {% endif %}
+    {% if next < comments| length %}
+    <a class="btn btn-primary" href="{{ path('ficheConference', {id: conference.id, offset: next}) }}">Suivant</a>
+    {% endif %}
+    <a class="btn btn-success" href="{{ path('app_conference') }}">Retour</a>
+</div>
+{% endblock %}
