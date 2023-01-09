@@ -7,6 +7,7 @@ use App\Entity\Conference;
 use App\Form\CommentFormType;
 use App\Repository\CommentRepository;
 use App\Repository\ConferenceRepository;
+use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -64,14 +65,27 @@ class ConferenceController extends AbstractController
     }
 
     #[Route('/conference/{id}/newComment', name: 'ficheConference_newComment')]
-    public function newComment(Conference $conference): Response
+    public function newComment(Conference $conference, Request $request, CommentRepository $commentRepo): Response
     {   
         $comment = new Comment();
         $form = $this->createForm(CommentFormType::class, $comment);
-
+        $form->handleRequest($request);
+        $message = '';
+        if($form->isSubmitted()){
+            if($form->isValid()){
+                $comment->setConference($conference);
+                $comment->setCreatedAt(new \DateTimeImmutable());
+                $commentRepo->save($comment, true);
+                return $this->redirectToRoute('ficheConference', ['id' => $conference->getId()]);
+            }
+            else{
+                $message = 'La saisi n\'est pas valide';
+            }
+        }
         return $this->render('conference/new_comment.html.twig', [
             'conference' => $conference,
             'form_comment' => $form->createView(),
+            'message' => $message,
         ]);
     }
 }
