@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Comment;
 use App\Entity\Conference;
+use App\Form\CommentFormType;
 use App\Repository\CommentRepository;
 use App\Repository\ConferenceRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,11 +19,11 @@ class ConferenceController extends AbstractController
     {   
         $offset = max(0, $request->get('offset',0));
 
-        $year = $request->get('year_search','');
+        $year_search = $request->get('year_search','');
 
-        $city = $request->get('city_search','');
+        $city_search = $request->get('city_search','');
 
-        $paginator = $conferenceRepository->getPaginator($offset, $year, $city);
+        $paginator = $conferenceRepository->getPaginator($offset, $year_search, $city_search);
         $years = $conferenceRepository->getListYear();
         $cities = $conferenceRepository->getListCities();
 
@@ -30,9 +32,9 @@ class ConferenceController extends AbstractController
             'previous' => $offset - ConferenceRepository::CONF_PER_PAGE,
             'next' => min(count($paginator), $offset + ConferenceRepository::CONF_PER_PAGE),
             'years' => $years,
-            'year_search' => $year,
+            'year_search' => $year_search,
             'cities' => $cities,
-            'city_search' => $city
+            'city_search' => $city_search
         ]);
     }
 
@@ -58,6 +60,18 @@ class ConferenceController extends AbstractController
             'comments' => $paginator,
             'previous' => $offset - CommentRepository::COMMENTS_PER_PAGE,
             'next' => min(count($paginator), $offset + CommentRepository::COMMENTS_PER_PAGE)
+        ]);
+    }
+
+    #[Route('/conference/{id}/newComment', name: 'ficheConference_newComment')]
+    public function newComment(Conference $conference): Response
+    {   
+        $comment = new Comment();
+        $form = $this->createForm(CommentFormType::class, $comment);
+
+        return $this->render('conference/new_comment.html.twig', [
+            'conference' => $conference,
+            'form_comment' => $form->createView(),
         ]);
     }
 }

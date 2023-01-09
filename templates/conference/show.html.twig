@@ -12,6 +12,7 @@
     <h1>Conférence {{ conference.name }}</h1>
     <h2>Ville : {{ conference.city }}</h2>
     Il y a {{ comments| length }} Commentaire{{ comments| length ? 's' : '' }}:
+    <a class="btn btn-secondary" href="{{ path('ficheConference_newComment', { id: conference.id }) }}">Nouveau commentaire</a>
     <ul class="list-group">
         {% for comment in comments %}
             <li class="list-group-item list-group-item-action">
