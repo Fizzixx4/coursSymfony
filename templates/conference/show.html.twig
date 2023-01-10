@@ -11,6 +11,9 @@
 <div class="example-wrapper">
     <h1>Conférence {{ conference.name }}</h1>
     <h2>Ville : {{ conference.city }}</h2>
+    <div>
+        <img src="/uploads/photos/{{ conference.photofilename }}" />
+    </div>
     Il y a {{ comments| length }} Commentaire{{ comments| length ? 's' : '' }}:
     <a class="btn btn-secondary" href="{{ path('ficheConference_newComment', { id: conference.id }) }}">Nouveau commentaire</a>
     <ul class="list-group">

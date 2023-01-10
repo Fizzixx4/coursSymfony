@@ -9,6 +9,8 @@ use App\Form\ConferenceFormType;
 use App\Repository\CommentRepository;
 use App\Repository\ConferenceRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -65,7 +67,7 @@ class ConferenceController extends AbstractController
     }
 
     #[Route('/conference/{id}/newComment', name: 'ficheConference_newComment')]
-    public function newComment(Conference $conference, Request $request, CommentRepository $commentRepo): Response
+    public function newComment(Conference $conference, Request $request, CommentRepository $commentRepo, #[Autowire('%photo_dir%')] string $photoDir): Response
     {   
         $comment = new Comment();
         $form = $this->createForm(CommentFormType::class, $comment);
@@ -90,7 +92,7 @@ class ConferenceController extends AbstractController
     }
 
     #[Route('/newConference', name: 'newConference')]
-    public function newConference(ConferenceRepository $conferenceRepo, Request $request): Response
+    public function newConference(ConferenceRepository $conferenceRepo, Request $request, #[Autowire('%photo_dir%')] string $photoDir): Response
     {   
         $conference = new Conference();
         $form = $this->createForm(ConferenceFormType::class, $conference);
@@ -98,34 +100,52 @@ class ConferenceController extends AbstractController
         $message = '';
         if($form->isSubmitted()){
             if($form->isValid()){
+                if ($photo = $form['photo']->getData()) {
+                    $filename = bin2hex(random_bytes(6)).'.'.$photo->guessExtension();
+                    try {
+                        $photo->move($photoDir, $filename);
+                    } catch (FileException $e) {
+                        // unable to upload the photo, give up
+                    }
+                    $conference->setPhotoFilename($filename);
+                    }
                 $conferenceRepo->save($conference, true);
-                return $this->redirectToRoute('app_conference');
+                return $this->redirectToRoute('ficheConference', ['id' => $conference->getId()]);
             }
             else{
                 $message = 'La saisi n\'est pas valide';
             }
         }
         return $this->render('conference/new_conference.html.twig', [
-            'form_comment' => $form->createView(),
+            'form_conference' => $form->createView(),
             'message' => $message,
         ]);
     }
 
     #[Route('/removeConference/{id}', name: 'removeConference')]
-    public function removeConference(Conference $conference, ConferenceRepository $conferenceRepo, Request $request): Response
+    public function removeConference(Conference $conference, ConferenceRepository $conferenceRepo): Response
     {   
         $conferenceRepo->remove($conference, true); 
         return $this->redirectToRoute('app_conference');
     }
 
     #[Route('/updateConference/{id}', name: 'updateConference')]
-    public function updateConference(Conference $conference, ConferenceRepository $conferenceRepo, Request $request): Response
+    public function updateConference(Conference $conference, ConferenceRepository $conferenceRepo, Request $request, #[Autowire('%photo_dir%')] string $photoDir): Response
     {   
         $form = $this->createForm(ConferenceFormType::class, $conference);
         $form->handleRequest($request);
         $message = '';
         if($form->isSubmitted()){
             if($form->isValid()){
+                if ($photo = $form['photo']->getData()) {
+                    $filename = bin2hex(random_bytes(6)).'.'.$photo->guessExtension();
+                    try {
+                        $photo->move($photoDir, $filename);
+                    } catch (FileException $e) {
+                        // unable to upload the photo, give up
+                    }
+                    $conference->setPhotoFilename($filename);
+                    }
                 $conferenceRepo->save($conference, true);
                 return $this->redirectToRoute('app_conference');
             }
@@ -134,7 +154,7 @@ class ConferenceController extends AbstractController
             }
         }
         return $this->render('conference/new_conference.html.twig', [
-            'form_comment' => $form->createView(),
+            'form_conference' => $form->createView(),
             'message' => $message,
         ]);
     }
